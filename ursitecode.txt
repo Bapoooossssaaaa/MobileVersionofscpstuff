@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maddie's Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glow-color: #fbcfe8; /* pink-200 */
+            --purple-color: #a855f7;
+            --bright-purple-color: #d8b4fe;
+        }
+
+        body {
+            font-family: 'Comfortaa', sans-serif;
+            overflow: hidden;
+        }
+
+        #video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+            filter: blur(2.5px);
+        }
+
+        #enter-screen {
+            position: fixed;
+            inset: 0;
+            background-color: black;
+            z-index: 100;
+            transition: opacity 1.2s ease-out;
+        }
+
+        .glowing-text-strong {
+             text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--glow-color), 0 0 20px var(--glow-color), 0 0 25px var(--glow-color), 0 0 30px var(--glow-color), 0 0 35px var(--glow-color);
+             color: white;
+        }
+
+        .transparent-ui {
+            position: relative;
+            background-color: rgba(10, 5, 15, 0.6);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 2px solid transparent; /* Make space for the gradient border */
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden; /* Hide overflowing pseudo-element */
+        }
+        
+        /* --- Animated Glowing Border --- */
+        .transparent-ui::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            margin: -2px; /* Overlap the border */
+            border-radius: inherit;
+            background: linear-gradient(45deg, var(--purple-color), var(--bright-purple-color), var(--glow-color), var(--purple-color));
+            background-size: 400% 400%;
+            animation: gradient-border-flow 2.5s linear infinite;
+        }
+
+        @keyframes gradient-border-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .profile-icon-container {
+            border-radius: 50%;
+            padding: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 25px rgba(251, 207, 232, 0.4), inset 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .profile-icon {
+            filter: hue-rotate(335deg) saturate(1.05);
+            width: 150px;
+            height: 150px;
+        }
+        
+        .animated-gradient-text {
+            background-size: 200% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-gradient-flow 3s linear infinite;
+        }
+        .trans-gradient {
+            background-image: linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA);
+        }
+        .bi-gradient {
+             background-image: linear-gradient(90deg, #D60270, #9B4F96, #0038A8, #9B4F96, #D60270);
+        }
+
+        @keyframes text-gradient-flow {
+            to { background-position: 200% center; }
+        }
+        
+        #volume-container {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        #volume-slider {
+            display: none;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100px;
+            height: 6px;
+            margin-left: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #volume-container:hover #volume-slider {
+            display: block;
+            animation: slide-in 0.4s ease-out forwards;
+        }
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; background: #fbcfe8; border-radius: 50%; border: 2px solid rgba(0,0,0,0.5); box-shadow: 0 0 5px #fbcfe8;
+        }
+        
+        .social-icon-wrapper {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            transition: transform 0.3s ease;
+        }
+        .social-icon-wrapper:hover {
+            transform: scale(1.15);
+        }
+        .social-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+        .social-icon-wrapper:hover .social-icon {
+            filter: drop-shadow(0 0 10px var(--glow-color));
+        }
+
+        /* --- Icon Hover Logic --- */
+        .animated-icon, .hover-logo { display: none; }
+        .social-icon-wrapper:hover .static-icon,
+        .social-icon-wrapper:hover .static-logo { display: none; }
+        .social-icon-wrapper:hover .animated-icon,
+        .social-icon-wrapper:hover .hover-logo { display: block; }
+        
+        /* --- Static Icon Recoloring --- */
+        .discord-static-icon { filter: brightness(0) invert(1); }
+        .roblox-static-icon { filter: brightness(0) invert(1); }
+        .social-icon-wrapper:hover .roblox-static-icon {
+            /* This filter chain creates a red color */
+            filter: brightness(0) invert(39%) sepia(85%) saturate(2534%) hue-rotate(335deg) brightness(93%) contrast(91%) drop-shadow(0 0 8px #ff0000);
+        }
+
+
+        /* --- Hover Labels --- */
+        .hover-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .social-icon-wrapper:hover .hover-label {
+            opacity: 1;
+        }
+
+        #main-content.hidden-animated {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+            pointer-events: none;
+        }
+
+        /* --- Currently Playing Animation --- */
+        .marquee-container {
+            overflow: hidden;
+        }
+        .disco-text-wrapper {
+            display: inline-block; /* Changed for marquee */
+            white-space: nowrap; /* Changed for marquee */
+            animation: marquee 25s linear infinite;
+        }
+        .disco-text-wrapper span {
+            display: inline-block;
+            animation: bounce 1.8s ease-in-out infinite; /* Slower bounce */
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <video playsinline autoplay muted loop id="video-bg">
+        <source src="https://github.com/Bapoooossssaaaa/dsdsadsa/raw/refs/heads/main/Untitled%20video%20-%20Made%20with%20Clipchamp%20(1).mp4" type="video/mp4">
+    </video>
+
+    <audio id="background-music" loop>
+        <source src="https://github.com/Bapoooossssaaaa/dsdsadsa/raw/refs/heads/main/Justin%20Bieber%20-%20Beauty%20And%20A%20Beat%20(Slowed%20%20Reverb).mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="enter-screen" class="flex items-center justify-center cursor-pointer">
+        <h1 class="text-6xl text-center font-bold glowing-text-strong transition-transform hover:scale-105">Click to Enter</h1>
+    </div>
+
+    <main id="main-content" class="h-screen w-screen flex flex-col items-center justify-center p-4 relative hidden-animated">
+        <div class="w-full max-w-4xl transparent-ui rounded-3xl shadow-2xl shadow-purple-500/10">
+            <div class="p-10 flex flex-col items-center text-center">
+                
+                <div class="profile-icon-container mb-5">
+                    <img src="https://github.com/Bapoooossssaaaa/dsdsadsa/blob/main/VRChat_2025-07-05_04-21-36.627_2560x1440.png?raw=true" 
+                         alt="Profile Icon" class="rounded-full object-cover profile-icon">
+                </div>
+
+                <h1 class="text-6xl font-bold glowing-text-strong mb-4">Maddie / Starlight &lt;3</h1>
+
+                <div class="my-4 text-2xl font-medium space-y-2">
+                    <p>19 <span class="mx-2 opacity-50">&bull;</span> <span class="bi-gradient animated-gradient-text font-bold">Bisexual</span></p>
+                    <p><span class="trans-gradient animated-gradient-text font-bold">Trans-Female</span> <span class="mx-2 opacity-50">&bull;</span> She/Her</p>
+                </div>
+
+                <blockquote class="my-6 italic text-lg text-pink-100 opacity-90">
+                    "I'm the brightest light you'll see in the sky at night during your worst moments..."
+                </blockquote>
+
+                <div class="mt-6 flex items-center justify-center space-x-12">
+                    <!-- Discord Icon -->
+                    <div class="social-icon-wrapper">
+                        <div id="discord-icon-container" class="w-full h-full">
+                           <img src="https://github.com/Bapoooossssaaaa/dsdsadsa/blob/main/discord-logo.png?raw=true" alt="Discord Icon Static" class="social-icon discord-static-icon static-icon">
+                           <img src="https://github.com/Bapoooossssaaaa/dsdsadsa/blob/main/discord.gif?raw=true" alt="Discord Icon Animated" class="social-icon animated-icon">
+                        </div>
+                        <div class="hover-label">darling.starlight</div>
+                    </div>
+                    <!-- VRChat Icon -->
+                    <a href="https://vrchat.com/home/user/usr_636a76a9-dee2-493a-8717-d48990a3c9a9" target="_blank" class="social-icon-wrapper">
+                        <div id="vrchat-icon-container" class="w-full h-full">
+                            <img src="https://github.com/Bapoooossssaaaa/dsdsadsa/blob/main/Vrchatlogeeeo.png?raw=true" alt="VRChat Logo Static" class="social-icon static-logo">
+                            <img src="https://github.com/Bapoooossssaaaa/dsdsadsa/blob/main/VRChat_Logo.svg.png?raw=true" alt="VRChat Logo Hover" class="social-icon hover-logo">
+                        </div>
+                        <div class="hover-label">『StarIsSleepy』</div>
+                    </a>
+                    <!-- Roblox Icon -->
+                    <a href="https://www.roblox.com/users/1725092598/profile" target="_blank" class="social-icon-wrapper">
+                        <img src="https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/0/e/e/0eeeb19633422b1241f4306419a0f15f39d58de9.png" alt="Roblox Logo" class="social-icon roblox-static-icon">
+                        <div class="hover-label">Roblox Profile</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-black bg-opacity-30 mt-4 p-3 text-center text-base text-pink-200 marquee-container">
+                <div class="disco-text-wrapper">
+                    <!-- Spans for bouncing text will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="volume-container">
+            <div id="volume-icon-container" class="w-10 h-10 cursor-pointer hover:bg-white/10 rounded-full flex items-center justify-center transition-colors">
+                <!-- Volume Icons will be injected here by JS -->
+            </div>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const enterScreen = document.getElementById('enter-screen');
+            const mainContent = document.getElementById('main-content');
+            const music = document.getElementById('background-music');
+            const video = document.getElementById('video-bg');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeIconContainer = document.getElementById('volume-icon-container');
+            const discoWrapper = document.querySelector('.disco-text-wrapper');
+
+            // --- Tab Title Typewriter ---
+            const titleBase = "@Starlight <3";
+            let titleIndex = 0;
+            let isDeleting = false;
+            function typeWriter() {
+                const currentText = isDeleting ? titleBase.substring(0, titleIndex - 1) : titleBase.substring(0, titleIndex + 1);
+                document.title = currentText || ' ';
+                
+                if (!isDeleting && titleIndex >= titleBase.length) {
+                    isDeleting = true; setTimeout(typeWriter, 3000);
+                } else if (isDeleting && titleIndex === 0) {
+                    isDeleting = false; setTimeout(typeWriter, 700);
+                } else {
+                    titleIndex = isDeleting ? titleIndex - 1 : titleIndex + 1;
+                    const typingSpeed = isDeleting ? 80 : 150;
+                    setTimeout(typeWriter, typingSpeed);
+                }
+            }
+            typeWriter();
+
+            // --- Bouncing Disco Text ---
+            const discoText = "Currently Playing: Justin Bieber - Beauty And A Beat (Slowed + Reverb)";
+            discoText.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${i * 0.05}s`;
+                discoWrapper.appendChild(span);
+            });
+
+            // --- Volume Controls ---
+            let isMuted = false;
+            let lastVolume = 0.5;
+            
+            const volumeIconSVG = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>`;
+            const muteIconSVG = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>`;
+
+            const updateVolumeIcon = () => {
+                volumeIconContainer.innerHTML = (isMuted || music.volume === 0) ? muteIconSVG : volumeIconSVG;
+            };
+            
+            music.volume = lastVolume;
+            volumeSlider.value = lastVolume;
+            updateVolumeIcon();
+
+            // --- Interaction Gate for Media Playback ---
+            enterScreen.addEventListener('click', () => {
+                enterScreen.style.opacity = '0';
+                setTimeout(() => {
+                    enterScreen.style.pointerEvents = 'none';
+                }, 1200);
+
+                mainContent.classList.remove('hidden-animated');
+
+                video.play().catch(e => console.log(`Video playback failed: ${e.message}`));
+                music.play().catch(e => console.log(`Audio playback failed: ${e.message}`));
+
+            }, { once: true });
+
+            volumeSlider.addEventListener('input', (e) => {
+                const newVolume = parseFloat(e.target.value);
+                music.volume = newVolume;
+                isMuted = newVolume === 0;
+                if (newVolume > 0) lastVolume = newVolume;
+                updateVolumeIcon();
+            });
+
+            volumeIconContainer.addEventListener('click', () => {
+                isMuted = !isMuted;
+                if (isMuted) {
+                    music.volume = 0;
+                    volumeSlider.value = 0;
+                } else {
+                    music.volume = lastVolume;
+                    volumeSlider.value = lastVolume;
+                }
+                updateVolumeIcon();
+            });
+        });
+    </script>
+</body>
+</html>
