@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bureau of Paranormal Control // Agent Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FFD700; /* Gold */
+            --primary-color-transparent: rgba(255, 215, 0, 0.15);
+            --primary-color-transparent-hover: rgba(255, 215, 0, 0.3);
+        }
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease-in-out;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+        .main-bg { background-image: url('https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20063406.png?raw=true'); }
+        .armory-bg { background-image: url('https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20073043.png?raw=true'); opacity: 0; }
+        .barber-bg { background-image: url('https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/built-a-little-barbershop-in-my-town-v0-qdmqvtfzfotb1.webp'); opacity: 0; }
+        
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow-y: auto; padding: 8rem 1rem 1rem 1rem;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+            opacity: 0; transform: scale(0.98); pointer-events: none;
+        }
+        .screen.active { opacity: 1; transform: scale(1); pointer-events: auto; }
+        
+        #intro-screen {
+             padding: 1rem; /* Override padding for intro */
+        }
+
+        .card {
+            background-color: rgba(10, 10, 10, 0.75);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; max-width: 900px;
+        }
+        .weapon-image { transform: rotate(-15deg); transition: transform 0.3s ease; }
+        .weapon-image:hover { transform: rotate(-5deg) scale(1.05); }
+        .item-disabled { opacity: 0.4; filter: grayscale(80%); cursor: not-allowed; }
+        
+        .selected { border-color: var(--primary-color); box-shadow: 0 0 15px var(--primary-color-transparent-hover); }
+        
+        input, select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 0.2);
+        }
+        .btn {
+            background-color: var(--primary-color-transparent);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: var(--primary-color-transparent-hover);
+            box-shadow: 0 0 10px var(--primary-color-transparent-hover);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; color: #aaa; border-color: #aaa; }
+        
+        .modal-bg { background-color: rgba(0, 0, 0, 0.8); }
+        .bpc-title { font-weight: 700; color: var(--primary-color); }
+
+        /* Intro Cinematic */
+        #intro-screen .intro-element { opacity: 0; transition: opacity 2s ease-in-out, transform 2s ease-in-out; }
+
+        /* Notepad Style */
+        #notepad-output {
+            font-family: 'Kalam', cursive; background-color: #fdfbe9; color: #333;
+            border: 1px solid #ccc; box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            line-height: 1.8; white-space: pre-wrap;
+            background-image: repeating-linear-gradient(to bottom, #e0e0d0, #e0e0d0 1px, transparent 1px, transparent 2.2rem);
+        }
+        
+        .gold-gradient-text {
+            background: linear-gradient(90deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-animation 5s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .volume-slider {
+            accent-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div id="background-container">
+        <div class="bg-image main-bg"></div>
+        <div class="bg-image armory-bg"></div>
+        <div class="bg-image barber-bg"></div>
+    </div>
+
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-black/30 backdrop-blur-md transition-opacity duration-500 opacity-0">
+        <div class="flex items-center gap-4">
+            <img src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-12 h-12">
+            <div class="hidden sm:block">
+                <h1 class="text-xl font-bold">BPC // Agent Terminal</h1>
+                <div id="time-date" class="text-xs text-gray-400"></div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+             <div id="music-player" class="flex items-center gap-2">
+                <button id="skip-song-button" class="text-yellow-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                </button>
+                <button id="mute-button" class="text-yellow-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3" class="w-24 volume-slider">
+                <div class="text-xs w-48 text-right">
+                    <p class="truncate gold-gradient-text" id="song-info">Click anywhere to start music</p>
+                </div>
+            </div>
+            <div id="settings-container" class="relative hidden">
+                <button id="settings-button" class="btn text-sm px-4 py-2 rounded font-bold">Settings</button>
+                <div id="settings-menu" class="absolute right-0 mt-2 w-48 bg-black/80 backdrop-blur-lg border border-gray-700 rounded-md shadow-lg hidden z-50">
+                    <button id="skip-button-main" class="w-full text-left px-4 py-2 text-sm text-yellow-300 hover:bg-yellow-500/10">Final Format</button>
+                    <button id="reset-button" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">Reset Data</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="screen active">
+             <div class="text-center flex flex-col items-center gap-6">
+                <div id="intro-sequence-container" class="intro-element">
+                    <img id="intro-logo" src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-48 h-48 md:w-64 md:h-64 object-contain mb-4 mx-auto">
+                    <h1 id="intro-title" class="text-4xl md:text-6xl bpc-title mt-4"></h1>
+                </div>
+                <div id="intro-buttons" class="intro-element mt-8">
+                    <button id="intro-button" class="btn p-3 px-6 rounded font-bold">Begin Configuration</button>
+                    <button id="skip-button" class="btn p-3 px-6 rounded font-bold hidden ml-4">Load Last Session</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screens for configuration -->
+        <div id="user-details-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">1 :: OPERATOR DETAILS</h2>
+                <div class="space-y-6">
+                    <input type="text" id="username" class="w-full p-3 rounded" placeholder="Roblox Username...">
+                    <select id="rank" class="w-full p-3 rounded">
+                        <option value="T-LR">Trial Low Rank (T-LR)</option>
+                        <option value="Main Force">Main Force</option>
+                        <option value="MR">Medium Rank (MR)</option>
+                        <option value="HR">High Rank+</option>
+                        <option value="VIP">Custom Morph</option>
+                    </select>
+                </div>
+                <div class="mt-8 flex justify-end"><button id="next-to-role" class="btn p-3 px-6 rounded font-bold">Next &gt;</button></div>
+            </div>
+        </div>
+        
+        <div id="role-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">2 :: ROLE SELECTION</h2>
+                <div id="role-options" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                <div class="mt-8 flex justify-between">
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="user-details-screen">&lt; Back</button>
+                    <button id="next-to-morph" class="nav-btn btn p-3 px-6 rounded font-bold" data-target="morph-screen">Next &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="morph-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">3 :: MORPH SELECTION</h2>
+                <div id="morph-options" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="extra-morph-options" class="mt-6 space-y-4"></div>
+                <div class="mt-8 flex justify-between">
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="role-screen">&lt; Back</button>
+                    <button id="next-from-morph" class="btn p-3 px-6 rounded font-bold">Next &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="barber-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                 <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">4 :: APPEARANCE</h2>
+                 <div class="grid md:grid-cols-3 gap-8">
+                    <div id="gender-selection" class="md:col-span-1 flex flex-col gap-4"></div>
+                    <div id="hair-selection" class="md:col-span-2 space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+                 </div>
+                 <div class="mt-8 flex justify-between">
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="morph-screen">&lt; Back</button>
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="armory-screen">Next &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="armory-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">5 :: ARMORY & GEAR</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div id="armory-content" class="md:col-span-2 space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                        <div id="armor-options" class="space-y-4"></div>
+                        <div id="armory-categories" class="space-y-6"></div>
+                    </div>
+                    <div id="stats-panel" class="md:col-span-1 bg-black/20 p-4 rounded-lg h-full">
+                        <!-- Stats will be injected here -->
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-between">
+                    <button id="armory-back-button" class="btn p-3 px-6 rounded font-bold">&lt; Back</button>
+                    <button id="next-to-deployment" class="btn p-3 px-6 rounded font-bold">Next &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="deployment-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">6 :: DEPLOYMENT SITE</h2>
+                <div id="site-options" class="space-y-4">
+                    <label class="flex items-center p-4 rounded-lg border-2 border-transparent has-[:checked]:selected bg-black/20 cursor-pointer">
+                        <input type="radio" name="site" value="Site 45" class="w-5 h-5 mr-4 accent-yellow-400" checked>
+                        <div><h3 class="font-bold text-lg">Site 45</h3><p class="text-sm text-gray-400">Relation: <span class="text-gray-300 font-bold">Neutral</span></p></div>
+                    </label>
+                    <label class="flex items-center p-4 rounded-lg border-2 border-transparent has-[:checked]:selected bg-black/20 cursor-pointer">
+                        <input type="radio" name="site" value="Site XX" class="w-5 h-5 mr-4 accent-yellow-400">
+                        <div><h3 class="font-bold text-lg">Site XX</h3><p class="text-sm text-gray-400">Relation: <span class="text-yellow-400 font-bold">Foundation Aligned</span></p></div>
+                    </label>
+                </div>
+                <div class="mt-8 flex justify-between">
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="armory-screen">&lt; Back</button>
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="output-screen">Generate Format &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="output-screen" class="screen">
+            <div class="card rounded-lg p-6 md:p-8">
+                <h2 id="output-title" class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">7 :: GENERATED FORMAT</h2>
+                <div id="notepad-output" class="w-full h-80 p-4 rounded font-mono text-sm overflow-y-auto"></div>
+                <div class="mt-8 flex justify-between items-center">
+                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="deployment-screen">&lt; Back</button>
+                    <div class="flex items-center gap-4">
+                        <button id="copy-button" class="btn p-3 px-6 rounded font-bold">Copy</button>
+                        <button id="finish-button" class="btn p-3 px-6 rounded font-bold">Finish & Exit</button>
+                    </div>
+                    <span id="copy-feedback" class="ml-4 text-green-400 opacity-0 transition-opacity">Copied!</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="fixed inset-0 z-50 items-center justify-center hidden modal-bg">
+        <!-- Rank Code Modal -->
+        <div id="rankCodeModal" class="card rounded-lg p-8 w-11/12 max-w-md mx-auto hidden">
+            <h3 class="text-xl font-bold mb-4 bpc-title">AUTHORIZATION REQUIRED</h3>
+            <input type="password" id="rankCodeInput" class="w-full p-2 rounded mb-4" placeholder="Enter Code...">
+            <div class="flex justify-end space-x-4">
+                <button id="cancelRankCode" class="btn bg-gray-600 border-gray-500 hover:bg-gray-500">Cancel</button>
+                <button id="submitRankCode" class="btn">Submit</button>
+            </div>
+        </div>
+        <!-- Error Modal -->
+         <div id="errorModal" class="card rounded-lg p-8 w-11/12 max-w-md mx-auto hidden text-center">
+            <h3 class="text-xl font-bold mb-4 text-red-500">ACCESS DENIED</h3>
+            <p id="error-message" class="text-gray-300 mb-6"></p>
+            <button id="error-ok-button" class="btn px-6 py-2">OK</button>
+        </div>
+    </div>
+    
+    <!-- Outro Screen -->
+    <div id="outro-screen" class="fixed inset-0 z-50 items-center justify-center hidden modal-bg">
+         <h2 class="text-4xl text-white font-bold">Have a nice day.</h2>
+    </div>
+
+    <audio id="audio-player" loop></audio>
+
+    <script type="module">
+        // --- DATA & CONFIG ---
+        const affiliations = { "Site 45": { name: "Neutral", id: "107846193234134" }, "Site XX": { name: "SCP Affiliated", id: "15501925503" } };
+        const morphs = {
+            Combatant: { "T-LR": { name: "Trial Low Rank", hats: "15177885362,110283265124773,17266468821,9240208744,18291250101,Kneepads,14973512227,15177836845", shirt: "123273793302854", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20061520.png?raw=true" }, "Main Force": { name: "Main Force", hats: "13961211061,14127734564,110283265124773,17266468821,9240208744,15177885362,103647562768082,12358955210,13834560407,18291250101,Kneepads,17172715247,jsnvg 215 166 69,15177836845", shirt: "123273793302854", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20061802.png?raw=true" }, "MR": { name: "Medium Rank", hats: "13961211061,14127734564,18291250101,103647562768082,12358955210,Kneepads,17172715247,{nvg},112835114467251,15177836845,110283265124773,9240208744,13834560407,12358955210,15177885362", shirt: "123273793302854", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20062124.png?raw=true", options: { nvg: { label: "NVG Choice", type: "radio", default: "qnvg 215 166 69", choices: { "qnvg 215 166 69": "QNVG", "jsnvg 215 166 69": "JSNVG" } } } }, "HR": { name: "High Rank+", hats: "78787802875634,4684658997,18291250101,15177836845,15177885362,9240208744,110283265124773,Kneepads,13744649136", shirt: "123273793302854", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20062434.png?raw=true" }, "VIP": { name: "Custom Morph", hats: "18291250101,15177836845,15177885362,9240208744,110283265124773,Kneepads", shirt: "123273793302854", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-23%20062534.png?raw=true", options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } } },
+            Civil: { "LR-MR": { name: "Civil Uniform", hats: "", shirt: "134922971302746", pants: "4666394268", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20204515.png?raw=true", noPatch: true, options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } }, "HR+": { name: "Civil Suit", hats: "", shirt: "131444035714992", pants: "7272536264", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20203837.png?raw=true", noPatch: true, options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } } },
+            Recon: { "Unmarked Vest": { name: "Unmarked Vest", hats: "129637836580829,126920315030446,10599636286,9240208744", shirt: "99640904533056", pants: "102365651044064", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20204610.png?raw=true", options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } }, "Unmarked Tactical": { name: "Unmarked Tactical", hats: "17266468821,136915759462771,129637836580829,126920315030446,10599636286,17172715247,9240208744,103647562768082,jsnvg 215 166 69,kneepads", shirt: "99640904533056", pants: "102365651044064", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20204748.png?raw=true" }, "Fully Unmarked": { name: "Fully Unmarked", hats: "15949303930", shirt: "99640904533056", pants: "102365651044064", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20204843.png?raw=true", noPatch: true, options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } }, "Marked LR": { name: "Marked (LR)", hats: "11989323584,Kneepads,17169010227,103647562768082,15177885362,13834560407,jsnvg 85 255 90,15177836845,15330922823,18406147686,17266468821,18291250101", shirt: "91265202402103", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20205047.png?raw=true" }, "Marked MR": { name: "Marked (MR)", hats: "11989323584,Kneepads,17294460681,17169010227,103647562768082,6095129469,15177885362,13834560407,{nvg},15177836845,15330922823,18406147686,18291250101", shirt: "91265202402103", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20205149.png?raw=true", options: { nvg: { label: "NVG Choice", type: "radio", default: "jsnvg 85 255 90", choices: { "jsnvg 85 255 90": "JSNVG", "qnvg 215 166 69": "QNVG" } } } }, "Marked HR+": { name: "Marked (HR+)", hats: "4507911797,11989323584,15177885362,18406147686,15177836845,Kneepads,15330922823,14537845798,18291250101", shirt: "91265202402103", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20205303.png?raw=true" }, "Marked Custom": { name: "Marked Custom", hats: "15177885362,18406147686,15177836845,Kneepads,15330922823,18291250101", shirt: "91265202402103", pants: "94888803170295", img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot%202025-07-24%20205434.png?raw=true", options: { customHats: { label: "Custom Hats (IDs, comma-separated)", type: "text", placeholder: "e.g., 12345,67890" } } } }
+        };
+        const rankOrder = ["T-LR", "Main Force", "MR", "HR", "VIP"];
+        const armory = {
+            "Rifles": { "arx": { name: "ARX-200", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/ARX-200.webp", stats: { "Base Damage": 11.75, "Rate of Fire": 700, "Magazine Size": 30, "Reload Time": 3, "Reserve Ammo": 5000, "Weight": -4.5, "Muzzle Velocity": 920, "Ammo Type": "Supersonic" } }, "Hellion": { name: "Hellion", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/Hellion.webp", stats: { "Base Damage": 9.75, "Rate of Fire": 860, "Magazine Size": 30, "Reload Time": 3, "Reserve Ammo": 5000, "Weight": -3.629, "Muzzle Velocity": 940, "Ammo Type": "Supersonic" } }, "hk": { name: "HK416", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/HK416.webp", stats: { "Base Damage": 8.75, "Rate of Fire": 900, "Magazine Size": 30, "Reload Time": 2.75, "Reserve Ammo": 5000, "Weight": -3.85, "Muzzle Velocity": 900, "Ammo Type": "Supersonic" } }, "aac": { name: "AAC Honey Badger", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/AAC_Honey_Badger.webp", stats: { "Base Damage": 10, "Rate of Fire": 800, "Magazine Size": 30, "Reload Time": 2.25, "Reserve Ammo": 5000, "Weight": -3.4, "Muzzle Velocity": 640, "Ammo Type": "Subsonic" } } },
+            "Submachine Guns": { "P90": { name: "P90", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/P90.webp", stats: { "Base Damage": 8.25, "Rate of Fire": 909, "Magazine Size": 50, "Reload Time": 4, "Reserve Ammo": 5000, "Weight": -2.6, "Muzzle Velocity": 715, "Ammo Type": "Subsonic" } }, "MP5": { name: "MP5", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/MP5.webp", stats: { "Base Damage": 9.5, "Rate of Fire": 800, "Magazine Size": 40, "Reload Time": 2.75, "Reserve Ammo": 5000, "Weight": -3.4, "Muzzle Velocity": 400, "Ammo Type": "Subsonic" } }, "evo": { name: "Evo 3 Micro", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/EVO_3_Micro.webp", stats: { "Base Damage": 6.5, "Rate of Fire": 1200, "Magazine Size": 40, "Reload Time": 2.9, "Reserve Ammo": 5000, "Weight": -2.3, "Muzzle Velocity": 357, "Ammo Type": "Subsonic" } } },
+            "Sidearms": { "Glock": { name: "Glock-17", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/Glock-17_Transparent.webp", stats: { "Base Damage": 18, "Rate of Fire": 240, "Magazine Size": 17, "Reload Time": 1.5, "Reserve Ammo": 340, "Weight": -0.3, "Muzzle Velocity": 375, "Ammo Type": "Subsonic" } }, "M9": { name: "M9", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/M9.webp", stats: { "Base Damage": 10.5, "Rate of Fire": 333, "Magazine Size": 15, "Reload Time": 1.6, "Reserve Ammo": 300, "Weight": -1.16, "Muzzle Velocity": 381, "Ammo Type": "Subsonic" } } },
+            "Miscellaneous": { "Crowbar": { name: "Baton", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/noFilter.webp", stats: { "Description": "It's actually a crowbar." } }, "detain": { name: "Detain Tool", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/Detain_Example.webp", stats: { "Description": "Allows the ability to put people in cuffs. HR+ Only." } }, "Medkit 5 Black": { name: "Medkit", img: "https://raw.githubusercontent.com/Bapoooossssaaaa/scpstuff/refs/heads/main/Black_Medkit.webp", stats: { "Description": "5 Charges, slick black look." } }, "auth_tool": { name: "Auth Tool", img: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZHRoPSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGZmMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTQgMi41TDQgMTggMTAgMTggOSAyMyAyMCA2IDE0IDYgMTQgMi41WiIvPjwvc3ZnPg==", stats: { "Description": "Allows authorization of Class-D/Test Subjects for testing or questioning. LR Only." } } }
+        };
+        const weaponTypes = { "Rifles": "Primary", "Submachine Guns": "Flexible", "Sidearms": "Secondary" };
+        const armorPlating = { "Light": { name: "Light Armor Plating", health: 10, img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot_2025-07-23_185316-removebg-preview.png?raw=true" }, "Medium": { name: "Medium Armor Plating", health: 25, img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot_2025-07-23_185316-removebg-preview.png?raw=true" }, "Heavy": { name: "Heavy Armor Plating", health: 50, img: "https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Screenshot_2025-07-23_185316-removebg-preview.png?raw=true" } };
+        const musicPlaylist = [
+            { name: "Velvet Skyline", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Velvet%20Skyline.mp3" },
+            { name: "Twilight Echoes", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Twilight%20Echoes.mp3" },
+            { name: "Neon Reverie", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Neon%20Reverie.mp3" },
+            { name: "Pulse Drift", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Pulse%20Drift.mp3" },
+        ];
+        const barberData = {
+            male: {
+                'Buzzcuts': { 'Black Buzzcut': { id: '18156853677', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(2).webp' }, 'Brown Buzzcut': { id: '18182556294', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(3).webp' }, 'Blonde Buzzcut': { id: '70524835553881', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(4).webp' }, 'White Buzzcut': { id: '99510696740107', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(1).webp' } },
+                'Beards': { 'Black Stubble': { id: '128761292479486', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(5).webp' }, 'Brown Stubble': { id: '13895692779', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(7).webp' }, 'Blonde Stubble': { id: '13895687613', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(8).webp' }, 'White Stubble': { id: '13895697801', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(6).webp' } }
+            },
+            female: {
+                'Long Hair': { 'Long Black Hair': { id: '15873749234', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(9).webp' }, 'Long Brown Hair': { id: '15873741713', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(10).webp' }, 'Long Blonde Hair': { id: '15873714314', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(11).webp' }, 'White Fluffy hair': { id: '131531975218115', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(12).webp' } },
+                'Ponytails': { 'Black Ponytail': { id: '9795024235', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(13).webp' }, 'Brown Ponytail': { id: '9795326475', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(14).webp' }, 'Blonde Ponytail': { id: '9795319126', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(15).webp' }, 'White Ponytail': { id: '14156710423', img: 'https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/noFilter%20(16).webp' } }
+            }
+        };
+        
+        // --- SECURITY & OBFUSCATION ---
+        const auth_matrix = { "Main Force": "bW9uYXJjaA", "MR": "cGFyYWdvbg", "HR": "dGVyYWdyYW0", "VIP": "ZXhhdG9u" }; // Base64
+
+        // --- STATE ---
+        let state = { username: '', rank: 'T-LR', role: 'Combatant', selectedMorph: 'T-LR', armor: 'Light', deploymentSite: 'Site 45', morphOptions: {}, primaryWeapon: null, secondaryWeapon: null, misc: [], isDataLoaded: false, isComplete: false, compareWeapon: null, lockedStatsItem: null, gender: 'male', hair: null, beard: null };
+        let previousRank = 'T-LR';
+        let currentSongIndex = 0;
+        let hasInteracted = false;
+
+        // --- DOM ELEMENTS ---
+        const dom = {
+            mainHeader: document.getElementById('main-header'),
+            screens: document.querySelectorAll('main .screen'), navButtons: document.querySelectorAll('.nav-btn'),
+            introButton: document.getElementById('intro-button'), skipButton: document.getElementById('skip-button'),
+            settings: { container: document.getElementById('settings-container'), button: document.getElementById('settings-button'), menu: document.getElementById('settings-menu'), skip: document.getElementById('skip-button-main'), reset: document.getElementById('reset-button') },
+            username: document.getElementById('username'), rank: document.getElementById('rank'),
+            nextToMorph: document.getElementById('next-to-morph'), nextToArmory: document.getElementById('next-to-armory'),
+            nextToRole: document.getElementById('next-to-role'),
+            nextToDeployment: document.getElementById('next-to-deployment'),
+            nextFromMorph: document.getElementById('next-from-morph'),
+            morphOptions: document.getElementById('morph-options'), extraMorphOptions: document.getElementById('extra-morph-options'),
+            roleOptions: document.getElementById('role-options'),
+            armorOptions: document.getElementById('armor-options'),
+            armory: document.getElementById('armory-categories'), armoryContent: document.getElementById('armory-content'), siteOptions: document.getElementById('site-options'),
+            statsPanel: document.getElementById('stats-panel'),
+            outputTitle: document.getElementById('output-title'), notepadOutput: document.getElementById('notepad-output'),
+            copyButton: document.getElementById('copy-button'), finishButton: document.getElementById('finish-button'), copyFeedback: document.getElementById('copy-feedback'),
+            timeDate: document.getElementById('time-date'),
+            modalContainer: document.getElementById('modal-container'),
+            rankCodeModal: document.getElementById('rankCodeModal'),
+            errorModal: document.getElementById('errorModal'),
+            errorMessage: document.getElementById('error-message'),
+            errorOkButton: document.getElementById('error-ok-button'),
+            rankCodeInput: document.getElementById('rankCodeInput'),
+            submitRankCode: document.getElementById('submitRankCode'),
+            cancelRankCode: document.getElementById('cancelRankCode'),
+            bgArmory: document.querySelector('.armory-bg'),
+            bgBarber: document.querySelector('.barber-bg'),
+            intro: { screen: document.getElementById('intro-screen'), container: document.getElementById('intro-sequence-container'), logo: document.getElementById('intro-logo'), title: document.getElementById('intro-title'), buttons: document.getElementById('intro-buttons') },
+            outroScreen: document.getElementById('outro-screen'),
+            music: { player: document.getElementById('audio-player'), mute: document.getElementById('mute-button'), volume: document.getElementById('volume-slider'), info: document.getElementById('song-info'), skip: document.getElementById('skip-song-button') },
+            genderSelection: document.getElementById('gender-selection'),
+            hairSelection: document.getElementById('hair-selection'),
+            armoryBackButton: document.getElementById('armory-back-button'),
+        };
+
+        const DB = { save: (data) => localStorage.setItem('bpcMorphDataV15', JSON.stringify(data)), load: () => JSON.parse(localStorage.getItem('bpcMorphDataV15')), clear: () => localStorage.removeItem('bpcMorphDataV15') };
+        
+        // --- FUNCTIONS ---
+        function validate_session() { return typeof state === 'object' && state !== null; }
+
+        function showScreen(screenId) {
+            if (!validate_session()) return;
+            dom.screens.forEach(screen => screen.classList.toggle('active', screen.id === screenId));
+            dom.bgArmory.style.opacity = screenId === 'armory-screen' ? '1' : '0';
+            dom.bgBarber.style.opacity = screenId === 'barber-screen' ? '1' : '0';
+            
+            if(screenId !== 'intro-screen') {
+                dom.mainHeader.style.opacity = 1;
+            } else {
+                dom.mainHeader.style.opacity = 0;
+            }
+
+            if (screenId === 'output-screen') generateOutput();
+            if (screenId === 'role-screen') renderRoles();
+            if (screenId === 'morph-screen') renderMorphs();
+            if (screenId === 'barber-screen') renderBarber();
+            if (screenId === 'armory-screen') {
+                state.lockedStatsItem = null;
+                state.compareWeapon = null;
+                renderArmory();
+                updateStatsPanel(null);
+            }
+        }
+
+        function renderRoles() {
+            dom.roleOptions.innerHTML = '';
+            const roles = ['Combatant', 'Civil', 'Recon'];
+            roles.forEach(role => {
+                const isSelected = state.role === role;
+                let isDisabled = false;
+                if (role === 'Recon' && state.rank === 'T-LR') {
+                    isDisabled = true;
+                }
+                const card = document.createElement('div');
+                card.className = `border-2 rounded-lg p-6 text-center transition-all duration-300 ${isDisabled ? 'item-disabled' : 'cursor-pointer'} ${isSelected && !isDisabled ? 'selected' : 'border-transparent'}`;
+                card.dataset.role = role;
+                card.innerHTML = `<h3 class="font-bold text-xl">${role}</h3>`;
+                if (!isDisabled) {
+                    card.addEventListener('click', () => { state.role = role; renderRoles(); });
+                }
+                dom.roleOptions.appendChild(card);
+            });
+        }
+
+        function renderMorphs() {
+            dom.morphOptions.innerHTML = '';
+            const currentMorphs = morphs[state.role];
+            const userRankIndex = rankOrder.indexOf(state.rank);
+
+            Object.entries(currentMorphs).forEach(([key, morph]) => {
+                let isUnlocked = true;
+                 if (state.role === 'Combatant') {
+                    isUnlocked = rankOrder.indexOf(key) <= userRankIndex;
+                } else if (state.role === 'Civil') {
+                    isUnlocked = (key === 'LR-MR' && userRankIndex <= rankOrder.indexOf('MR')) || (key === 'HR+' && userRankIndex >= rankOrder.indexOf('HR'));
+                } else if (state.role === 'Recon') {
+                     const morphRankRequirements = { "Marked LR": "Main Force", "Marked MR": "MR", "Marked HR+": "HR", "Marked Custom": "VIP" };
+                     if (morphRankRequirements[key]) {
+                         isUnlocked = userRankIndex >= rankOrder.indexOf(morphRankRequirements[key]);
+                     }
+                }
+
+                const isSelected = state.selectedMorph === key;
+                const card = document.createElement('div');
+                card.className = `border-2 rounded-lg p-4 transition-all duration-300 ${isUnlocked ? 'cursor-pointer' : 'item-disabled'} ${isSelected && isUnlocked ? 'selected' : 'border-transparent'}`;
+                card.dataset.morphId = key;
+                card.innerHTML = `<img src="${morph.img}" alt="${morph.name}" class="w-full h-48 object-contain rounded-md mb-2"><h3 class="font-bold text-center">${morph.name}</h3>`;
+                if (isUnlocked) card.addEventListener('click', () => { state.selectedMorph = key; state.morphOptions = {}; renderAll(); });
+                dom.morphOptions.appendChild(card);
+            });
+            renderExtraMorphOptions();
+        }
+
+        function renderExtraMorphOptions() {
+            dom.extraMorphOptions.innerHTML = '';
+            const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
+            if (!selectedMorphData || !selectedMorphData.options) return;
+            Object.entries(selectedMorphData.options).forEach(([key, option]) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-3 rounded-md bg-black/20';
+                let inputHtml = `<h3 class="block mb-2 text-sm font-bold text-yellow-200">${option.label}</h3>`;
+                if (option.type === 'radio') {
+                    inputHtml += '<div class="flex flex-wrap gap-x-4 gap-y-2">';
+                    Object.entries(option.choices).forEach(([value, label]) => {
+                        const isChecked = (state.morphOptions[key] || option.default) === value;
+                        inputHtml += `<label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="${key}" value="${value}" class="morph-option-input accent-yellow-400" data-option-key="${key}" ${isChecked ? 'checked' : ''}><span>${label}</span></label>`;
+                    });
+                    inputHtml += '</div>';
+                } else if (option.type === 'text') {
+                    inputHtml += `<input type="text" class="morph-option-input w-full p-2 rounded" data-option-key="${key}" placeholder="${option.placeholder || ''}" value="${state.morphOptions[key] || ''}">`;
+                }
+                wrapper.innerHTML = inputHtml;
+                dom.extraMorphOptions.appendChild(wrapper);
+            });
+        }
+        
+        function renderArmory() {
+            // Render Armor
+            dom.armorOptions.innerHTML = '';
+            const userRankIndex = rankOrder.indexOf(state.rank);
+            let armorHtml = `<h3 class="text-xl font-bold mb-3 text-yellow-300">Armor Plating</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-4">`;
+            Object.entries(armorPlating).forEach(([key, armor]) => {
+                let isDisabled = false;
+                if (key === 'Medium' && userRankIndex < rankOrder.indexOf('Main Force')) isDisabled = true;
+                if (key === 'Heavy' && userRankIndex < rankOrder.indexOf('MR')) isDisabled = true;
+                
+                const isSelected = state.armor === key;
+                armorHtml += `<label class="flex flex-col items-center p-4 rounded-lg border-2 bg-black/20 ${isDisabled ? 'item-disabled' : 'cursor-pointer'} ${isSelected && !isDisabled ? 'selected' : 'border-transparent'}">
+                    <input type="radio" name="armor" value="${key}" class="hidden" ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+                    <img src="${armor.img}" class="w-24 h-24 object-contain mb-2">
+                    <h3 class="font-bold">${armor.name}</h3>
+                </label>`;
+            });
+            dom.armorOptions.innerHTML = armorHtml + `</div>`;
+
+            // Render Weapons
+            dom.armory.innerHTML = '';
+            Object.entries(armory).forEach(([category, items]) => {
+                const div = document.createElement('div');
+                let html = `<h3 class="text-xl font-bold mb-3 text-yellow-300">${category}</h3><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">`;
+                Object.entries(items).forEach(([cmd, item]) => {
+                    let isDisabled = false;
+                    if (state.role === 'Civil') {
+                        if (category === 'Rifles') isDisabled = true;
+                        if (category === 'Miscellaneous' && !['Medkit 5 Black', 'detain', 'auth_tool'].includes(cmd)) isDisabled = true;
+                    }
+                    if (cmd === 'auth_tool' && state.role !== 'Civil') {
+                         return; // Don't even render it
+                    }
+
+                    if (state.rank === 'T-LR') {
+                        if (category === 'Rifles' || (category === 'Miscellaneous' && cmd !== 'auth_tool')) isDisabled = true;
+                    }
+                    if (cmd === 'Crowbar' && userRankIndex < rankOrder.indexOf('MR')) isDisabled = true;
+                    if (cmd === 'detain' && userRankIndex < rankOrder.indexOf('HR')) isDisabled = true;
+                    
+                    const isSelected = state.primaryWeapon === cmd || state.secondaryWeapon === cmd || state.misc.includes(cmd);
+                    const isMisc = category === 'Miscellaneous';
+                    html += `<div class="armory-item border-2 bg-black/30 p-2 rounded-lg transition-all duration-300 ${isDisabled ? 'item-disabled' : 'cursor-pointer'} ${isSelected && !isDisabled ? 'selected' : 'border-transparent'}" data-item-cmd="${cmd}" data-item-category="${category}" data-item-disabled="${isDisabled}">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-20 object-contain mx-auto ${isMisc ? '' : 'weapon-image'}"><p class="text-center text-xs mt-2">${item.name}</p></div>`;
+                });
+                div.innerHTML = html + `</div>`;
+                dom.armory.appendChild(div);
+            });
+            dom.nextToDeployment.disabled = !state.primaryWeapon && !state.secondaryWeapon;
+        }
+
+        function isSMG(cmd) {
+            return cmd && armory['Submachine Guns'].hasOwnProperty(cmd);
+        }
+
+        function handleArmoryClick(e) {
+            const itemEl = e.target.closest('.armory-item');
+            if (!itemEl || itemEl.dataset.itemDisabled === 'true') return;
+
+            const cmd = itemEl.dataset.itemCmd;
+            const category = itemEl.dataset.itemCategory;
+            const type = weaponTypes[category] || 'Misc';
+
+            if (type === 'Misc') {
+                state.misc = state.misc.includes(cmd) ? state.misc.filter(i => i !== cmd) : [...state.misc, cmd];
+            } else if (type === 'Primary') {
+                if (isSMG(cmd) && isSMG(state.secondaryWeapon)) {
+                    showError("Loadout violation: Only one SMG may be equipped at a time.");
+                    return;
+                }
+                state.primaryWeapon = state.primaryWeapon === cmd ? null : cmd;
+            } else if (type === 'Secondary') {
+                 if (isSMG(cmd) && isSMG(state.primaryWeapon)) {
+                    showError("Loadout violation: Only one SMG may be equipped at a time.");
+                    return;
+                }
+                state.secondaryWeapon = state.secondaryWeapon === cmd ? null : cmd;
+            } else if (type === 'Flexible') { // SMG Logic
+                if (state.primaryWeapon === cmd) { // Deselecting from primary
+                    state.primaryWeapon = null;
+                } else if (state.secondaryWeapon === cmd) { // Deselecting from secondary
+                    state.secondaryWeapon = null;
+                } else if (!state.primaryWeapon && !isSMG(state.secondaryWeapon)) { // Equip as primary if primary empty and secondary is not SMG
+                    state.primaryWeapon = cmd;
+                } else if (!state.secondaryWeapon && !isSMG(state.primaryWeapon)) { // Equip as secondary if secondary empty and primary is not SMG
+                    state.secondaryWeapon = cmd;
+                } else { 
+                    showError("Loadout violation: An SMG is already equipped or both weapon slots are full.");
+                }
+            }
+            renderArmory(); saveData();
+        }
+
+        function generateOutput() {
+            dom.outputTitle.textContent = `6 :: GENERATED FORMAT`;
+            const user = state.username || '{username}';
+            const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
+            if (!selectedMorphData) {
+                dom.notepadOutput.textContent = "Error: No valid morph selected for the current role.";
+                return;
+            };
+            let hatString = selectedMorphData.hats;
+            if (selectedMorphData.options) {
+                Object.entries(selectedMorphData.options).forEach(([key, option]) => {
+                    const value = state.morphOptions[key] || option.default || "";
+                    if (option.type === 'radio') hatString = hatString.replace(`{${key}}`, value);
+                    else if (option.type === 'text' && value) hatString += `,${value}`;
+                });
+            }
+            const affiliation = affiliations[state.deploymentSite];
+            if (affiliation && !selectedMorphData.noPatch) hatString += `,${affiliation.id}`;
+            hatString = hatString.replace(/,+/g, ',').replace(/^,|,$/g, '');
+            const medkitCmd = "Medkit 5 Black";
+            const gearItems = [state.primaryWeapon, state.secondaryWeapon, ...state.misc.filter(i => i !== medkitCmd)].filter(Boolean);
+            let gearString = "EMF";
+            if (gearItems.length > 0) gearString += `,${gearItems.join(',')}`;
+            
+            const outputArray = [
+                `(${state.deploymentSite})`,
+                `permhat ${user} ${hatString}`, 
+                `permshirt ${user} ${selectedMorphData.shirt}`, 
+                `permpants ${user} ${selectedMorphData.pants}`, 
+                `permface ${user} 0`, 
+                `permntag ${user} (TBD)`, `permrtag ${user} (TBD)`, 
+                `permcntag ${user} (TBD)`, `permcrtag ${user} (TBD)`,
+            ];
+            
+            if (gearString !== "EMF") {
+                 outputArray.push(`startergear ${user} ${gearString}`);
+            }
+            if (state.misc.includes(medkitCmd)) {
+                outputArray.push(`startergear ${user} ${medkitCmd}`);
+            }
+
+            outputArray.push(
+                `permmaxhealth ${user} ${100 + armorPlating[state.armor].health}`,
+                `heal ${user}`
+            );
+            dom.notepadOutput.textContent = outputArray.join('\n');
+        }
+
+        function handleRankChange(e) {
+            const newRank = e.target.value;
+            if (auth_matrix[newRank]) {
+                dom.modalContainer.style.display = 'flex';
+                dom.rankCodeModal.style.display = 'block';
+                dom.errorModal.style.display = 'none';
+            } else {
+                state.rank = newRank; previousRank = newRank;
+                if (rankOrder.indexOf(state.selectedMorph) > rankOrder.indexOf(state.rank)) state.selectedMorph = state.rank;
+                saveData();
+            }
+        }
+        
+        function showError(message) {
+            dom.errorMessage.textContent = message;
+            dom.modalContainer.style.display = 'flex';
+            dom.rankCodeModal.style.display = 'none';
+            dom.errorModal.style.display = 'block';
+        }
+
+        function handleRankCodeSubmit() {
+            const enteredCode = dom.rankCodeInput.value;
+            const targetRank = dom.rank.value;
+            if (auth_matrix[targetRank] && enteredCode === atob(auth_matrix[targetRank])) {
+                state.rank = targetRank; previousRank = targetRank;
+                dom.modalContainer.style.display = 'none'; dom.rankCodeInput.value = '';
+                saveData();
+            } else {
+                dom.rank.value = previousRank;
+                dom.rankCodeInput.value = '';
+                showError('Incorrect authorization code. Please consult a supervisor or the designated channels if you cannot locate the correct code.');
+            }
+        }
+
+        function saveData(isFinal = false) { 
+            if (isFinal) state.isComplete = true;
+            if (state.isDataLoaded) DB.save(state); 
+        }
+
+        function loadData() {
+            const loadedState = DB.load();
+            if (loadedState) {
+                if (morphs[loadedState.role]?.[loadedState.selectedMorph]) state = loadedState;
+                if (state.isComplete) {
+                    console.log("Returning user detected with completed session. Displaying settings.");
+                    dom.skipButton.classList.remove('hidden');
+                    dom.settings.container.classList.remove('hidden');
+                }
+            }
+            state.isDataLoaded = true;
+            dom.username.value = state.username; dom.rank.value = state.rank; previousRank = state.rank;
+            document.querySelector(`input[name="site"][value="${state.deploymentSite}"]`).checked = true;
+        }
+        
+        function renderAll() { renderMorphs(); renderExtraMorphOptions(); saveData(); }
+
+        function runIntro() {
+            setTimeout(() => {
+                dom.intro.container.style.opacity = 1;
+                dom.intro.container.style.transform = 'scale(1)';
+                setTimeout(() => {
+                    dom.intro.title.textContent = "Bureau of Paranormal Control";
+                    setTimeout(() => {
+                         dom.intro.buttons.style.opacity = 1;
+                    }, 1500);
+                }, 1500);
+            }, 1000);
+        }
+        
+        function updateTime() {
+            dom.timeDate.textContent = new Date().toLocaleString();
+        }
+
+        function updateStatsPanel(itemData, compareData = null) {
+            if (!itemData) {
+                dom.statsPanel.innerHTML = `<p class="text-gray-400 text-center mt-4">Hover over an item to see details.</p>`;
+                return;
+            }
+
+            let statsHtml;
+            if (compareData) {
+                statsHtml = getComparisonHtml(itemData, compareData);
+            } else {
+                statsHtml = getSingleItemHtml(itemData);
+            }
+            
+            dom.statsPanel.innerHTML = statsHtml;
+        }
+
+        function getSingleItemHtml(itemData) {
+            let html = `<h4 class="font-bold text-lg text-yellow-400 mb-2">${itemData.name}</h4>`;
+            if (itemData.stats) {
+                html += '<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">';
+                for(const [key, value] of Object.entries(itemData.stats)) {
+                    html += `<span class="text-gray-400">${key}:</span><span>${value}</span>`;
+                }
+                html += '</div>';
+            }
+            if (itemData.stats && !itemData.stats.Description) {
+                 html += `<button id="compare-button" class="btn w-full mt-4 text-sm py-1">Compare</button>`;
+            }
+            return html;
+        }
+
+        function getComparisonHtml(base, compare) {
+            let html = `<h4 class="font-bold text-lg text-yellow-400 mb-2">${base.name} vs ${compare.name}</h4>`;
+            html += '<div class="grid grid-cols-3 gap-x-2 gap-y-1 text-sm">';
+            
+            const higherIsBetter = ["Base Damage", "Rate of Fire", "Magazine Size", "Reserve Ammo", "Muzzle Velocity"];
+            const lowerIsBetter = ["Reload Time", "Weight"];
+
+            for(const key in base.stats) {
+                if (compare.stats && compare.stats.hasOwnProperty(key)) {
+                    const baseVal = parseFloat(base.stats[key]);
+                    const compareVal = parseFloat(compare.stats[key]);
+                    let arrow = '<span class="text-gray-500">=&nbsp;</span>';
+                    let colorClass = 'text-gray-400';
+
+                    if (!isNaN(baseVal) && !isNaN(compareVal)) {
+                        if (higherIsBetter.includes(key)) {
+                            if (compareVal > baseVal) { arrow = '<span class="text-green-500">▲</span>'; colorClass = 'text-green-400'; }
+                            else if (compareVal < baseVal) { arrow = '<span class="text-red-500">▼</span>'; colorClass = 'text-red-400'; }
+                        } else if (lowerIsBetter.includes(key)) {
+                            if (compareVal < baseVal) { arrow = '<span class="text-green-500">▲</span>'; colorClass = 'text-green-400'; }
+                            else if (compareVal > baseVal) { arrow = '<span class="text-red-500">▼</span>'; colorClass = 'text-red-400'; }
+                        }
+                    }
+
+                    html += `<span class="text-gray-400 col-span-2">${key}:</span><span class="${colorClass}">${arrow}${compare.stats[key]}</span>`;
+                }
+            }
+            html += '</div>';
+            html += `<button id="stop-compare-button" class="btn w-full mt-4 text-sm py-1">Stop Comparing</button>`;
+            return html;
+        }
+
+        // --- MUSIC PLAYER ---
+        function playNextSong(isSkip = false) {
+            if (!hasInteracted) return;
+            if (isSkip) {
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * musicPlaylist.length);
+                } while (nextIndex === currentSongIndex);
+                currentSongIndex = nextIndex;
+            } else {
+                 currentSongIndex = (currentSongIndex + 1) % musicPlaylist.length;
+            }
+            const song = musicPlaylist[currentSongIndex];
+            dom.music.player.src = song.src;
+            dom.music.player.play().catch(e => console.log("Audio play failed, waiting for interaction."));
+            dom.music.info.textContent = `Playing: ${song.name}`;
+        }
+
+        // --- EVENT LISTENERS ---
+        document.body.addEventListener('click', () => {
+            if(!hasInteracted) {
+                hasInteracted = true;
+                playNextSong(true); // Randomize first song
+            }
+        }, { once: true });
+
+        dom.music.player.addEventListener('ended', () => playNextSong(false));
+        dom.music.skip.addEventListener('click', () => playNextSong(true));
+        dom.music.volume.addEventListener('input', (e) => dom.music.player.volume = e.target.value);
+        dom.music.mute.addEventListener('click', () => {
+            dom.music.player.muted = !dom.music.player.muted;
+            dom.music.mute.innerHTML = dom.music.player.muted 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l-4-4m0 4l4-4" /></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>`;
+        });
+
+
+        dom.introButton.addEventListener('click', () => showScreen('user-details-screen'));
+        dom.skipButton.addEventListener('click', () => showScreen('output-screen'));
+        dom.settings.skip.addEventListener('click', () => showScreen('output-screen'));
+        dom.settings.reset.addEventListener('click', () => { if (confirm("Are you sure you want to reset all saved data? This action cannot be undone.")) { DB.clear(); location.reload(); } });
+        dom.settings.button.addEventListener('click', () => dom.settings.menu.classList.toggle('hidden'));
+        dom.navButtons.forEach(button => button.addEventListener('click', (e) => showScreen(e.target.dataset.target)));
+        dom.nextToRole.addEventListener('click', () => { if (dom.username.value.trim() === '') { showError('Username is required to proceed.'); return; } showScreen('role-screen'); });
+        dom.nextFromMorph.addEventListener('click', () => {
+            const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
+            const customHatOption = selectedMorphData?.options?.customHats;
+            const customHatValue = state.morphOptions.customHats || "";
+
+            if (customHatOption && customHatValue.trim() === '') {
+                showScreen('barber-screen');
+            } else {
+                showScreen('armory-screen');
+            }
+        });
+        dom.armoryBackButton.addEventListener('click', () => {
+            const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
+            const customHatOption = selectedMorphData?.options?.customHats;
+            const customHatValue = state.morphOptions.customHats || "";
+
+            if (customHatOption && customHatValue.trim() === '') {
+                showScreen('barber-screen');
+            } else {
+                showScreen('morph-screen');
+            }
+        });
+        dom.nextToDeployment.addEventListener('click', () => {
+            if (!state.primaryWeapon && !state.secondaryWeapon) {
+                showError('Loadout violation: You must select at least one Primary or Secondary weapon to proceed.');
+                return;
+            }
+            showScreen('deployment-screen');
+        });
+        dom.username.addEventListener('input', (e) => { state.username = e.target.value; saveData(); });
+        dom.rank.addEventListener('change', handleRankChange);
+        dom.submitRankCode.addEventListener('click', handleRankCodeSubmit);
+        dom.cancelRankCode.addEventListener('click', () => { dom.rank.value = previousRank; dom.modalContainer.style.display = 'none'; });
+        dom.errorOkButton.addEventListener('click', () => dom.modalContainer.style.display = 'none');
+        
+        dom.armoryContent.addEventListener('mouseover', (e) => { 
+            const itemEl = e.target.closest('.armory-item');
+            if (itemEl) {
+                const cmd = itemEl.dataset.itemCmd;
+                const category = itemEl.dataset.itemCategory;
+                if (armory[category] && armory[category][cmd]) {
+                    const itemData = armory[category][cmd];
+                    if (state.compareWeapon) {
+                        updateStatsPanel(state.compareWeapon, itemData);
+                    } else {
+                        state.lockedStatsItem = itemData;
+                        updateStatsPanel(itemData);
+                    }
+                }
+            }
+        });
+       
+        dom.armoryContent.addEventListener('click', (e) => {
+            const itemEl = e.target.closest('.armory-item');
+            if (itemEl) handleArmoryClick(e);
+        });
+        dom.armoryContent.addEventListener('change', (e) => { if (e.target.name === 'armor') { state.armor = e.target.value; saveData(); renderArmory(); }});
+        
+        dom.statsPanel.addEventListener('click', (e) => {
+            if (e.target.id === 'compare-button') {
+                state.compareWeapon = state.lockedStatsItem;
+                dom.statsPanel.innerHTML = `<p class="text-gray-400 text-center mt-4">Comparing ${state.compareWeapon.name}.<br><br>Hover over another weapon to see differences.</p><button id="stop-compare-button" class="btn w-full mt-4 text-sm py-1">Stop Comparing</button>`;
+            }
+            if (e.target.id === 'stop-compare-button') {
+                state.compareWeapon = null;
+                updateStatsPanel(state.lockedStatsItem);
+            }
+        });
+
+        dom.extraMorphOptions.addEventListener('change', (e) => { const input = e.target.closest('.morph-option-input'); if (!input) return; state.morphOptions[input.dataset.optionKey] = input.value; renderAll(); });
+        dom.siteOptions.addEventListener('change', (e) => { state.deploymentSite = e.target.value; saveData(); });
+        dom.copyButton.addEventListener('click', () => {
+            saveData(true);
+            const textToCopy = dom.notepadOutput.textContent;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            dom.copyFeedback.style.opacity = '1';
+            setTimeout(() => { dom.copyFeedback.style.opacity = '0'; }, 2000);
+        });
+        dom.finishButton.addEventListener('click', () => {
+            saveData(true);
+            dom.outroScreen.style.display = 'flex';
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        });
+
+        // --- INITIALIZATION ---
+        function init() { 
+            loadData(); 
+            renderAll(); 
+            runIntro();
+            updateTime();
+            setInterval(updateTime, 1000);
+            dom.music.player.volume = 0.3;
+        }
+        init();
+    </script>
+</body>
+</html>
