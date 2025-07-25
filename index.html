@@ -18,7 +18,6 @@
             font-family: 'Roboto Mono', monospace;
             background-color: #0a0a0a;
             color: #e0e0e0;
-            /* Allow body to scroll on mobile if content overflows */
             overflow-x: hidden;
         }
         .bg-image {
@@ -40,7 +39,6 @@
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             overflow-y: auto; 
-            /* Responsive padding: Less top padding on mobile */
             padding: 6rem 1rem 1rem 1rem;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
@@ -50,7 +48,7 @@
         .screen.active { opacity: 1; transform: scale(1); pointer-events: auto; }
         
         #intro-screen {
-             padding: 1rem; /* Override padding for intro */
+             padding: 1rem;
         }
 
         .card {
@@ -58,7 +56,6 @@
             backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%; 
-            /* Responsive max-width */
             max-width: 95%;
             md:max-width: 900px;
         }
@@ -77,7 +74,6 @@
             border: 1px solid var(--primary-color);
             color: var(--primary-color);
             transition: all 0.3s ease;
-            /* Ensure buttons are easily tappable */
             padding: 0.75rem 1.5rem;
         }
         .btn:hover:not(:disabled) {
@@ -89,10 +85,8 @@
         .modal-bg { background-color: rgba(0, 0, 0, 0.8); }
         .bpc-title { font-weight: 700; color: var(--primary-color); }
 
-        /* Intro Cinematic */
         #intro-screen .intro-element { opacity: 0; transition: opacity 2s ease-in-out, transform 2s ease-in-out; }
 
-        /* Notepad Style */
         #notepad-output {
             font-family: 'Kalam', cursive; background-color: #fdfbe9; color: #333;
             border: 1px solid #ccc; box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
@@ -127,7 +121,6 @@
     </div>
 
     <header id="main-header" class="fixed top-0 left-0 right-0 z-20 p-2 sm:p-4 flex justify-between items-center bg-black/30 backdrop-blur-md transition-opacity duration-500 opacity-0">
-        <!-- Left side: Logo and Title -->
         <div class="flex items-center gap-2 sm:gap-4">
             <img src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12">
             <div class="hidden sm:block">
@@ -135,7 +128,6 @@
                 <div id="time-date" class="text-xs text-gray-400"></div>
             </div>
         </div>
-        <!-- Right side: Music and Settings -->
         <div class="flex items-center gap-2 sm:gap-6">
              <div id="music-player" class="flex items-center gap-2">
                 <button id="skip-song-button" class="text-yellow-400 p-1">
@@ -204,9 +196,12 @@
         </div>
 
         <div id="morph-screen" class="screen">
-            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8 flex flex-col">
                 <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">3 :: MORPH SELECTION</h2>
-                <div id="morph-options" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <!-- This container will scroll on overflow -->
+                <div class="flex-grow overflow-y-auto pr-2">
+                    <div id="morph-options" class="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4"></div>
+                </div>
                 <div id="extra-morph-options" class="mt-6 space-y-4"></div>
                 <div class="mt-8 flex justify-between">
                     <button class="nav-btn btn rounded font-bold" data-target="role-screen">&lt; Back</button>
@@ -462,9 +457,9 @@
 
                 const isSelected = state.selectedMorph === key;
                 const card = document.createElement('div');
-                card.className = `border-2 rounded-lg p-4 transition-all duration-300 ${isUnlocked ? 'cursor-pointer' : 'item-disabled'} ${isSelected && isUnlocked ? 'selected' : 'border-transparent'}`;
+                card.className = `border-2 rounded-lg p-2 sm:p-4 transition-all duration-300 ${isUnlocked ? 'cursor-pointer' : 'item-disabled'} ${isSelected && isUnlocked ? 'selected' : 'border-transparent'}`;
                 card.dataset.morphId = key;
-                card.innerHTML = `<img src="${morph.img}" alt="${morph.name}" class="w-full h-48 object-contain rounded-md mb-2"><h3 class="font-bold text-center">${morph.name}</h3>`;
+                card.innerHTML = `<img src="${morph.img}" alt="${morph.name}" class="w-full h-32 sm:h-48 object-contain rounded-md mb-2"><h3 class="font-bold text-center text-sm sm:text-base">${morph.name}</h3>`;
                 if (isUnlocked) card.addEventListener('click', () => { state.selectedMorph = key; state.morphOptions = {}; renderAll(); });
                 dom.morphOptions.appendChild(card);
             });
