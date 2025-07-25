@@ -18,7 +18,8 @@
             font-family: 'Roboto Mono', monospace;
             background-color: #0a0a0a;
             color: #e0e0e0;
-            overflow: hidden;
+            /* Allow body to scroll on mobile if content overflows */
+            overflow-x: hidden;
         }
         .bg-image {
             position: fixed;
@@ -38,7 +39,9 @@
         
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            overflow-y: auto; padding: 8rem 1rem 1rem 1rem;
+            overflow-y: auto; 
+            /* Responsive padding: Less top padding on mobile */
+            padding: 6rem 1rem 1rem 1rem;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
@@ -54,7 +57,10 @@
             background-color: rgba(10, 10, 10, 0.75);
             backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%; max-width: 900px;
+            width: 100%; 
+            /* Responsive max-width */
+            max-width: 95%;
+            md:max-width: 900px;
         }
         .weapon-image { transform: rotate(-15deg); transition: transform 0.3s ease; }
         .weapon-image:hover { transform: rotate(-5deg) scale(1.05); }
@@ -71,6 +77,8 @@
             border: 1px solid var(--primary-color);
             color: var(--primary-color);
             transition: all 0.3s ease;
+            /* Ensure buttons are easily tappable */
+            padding: 0.75rem 1.5rem;
         }
         .btn:hover:not(:disabled) {
             background-color: var(--primary-color-transparent-hover);
@@ -118,29 +126,31 @@
         <div class="bg-image barber-bg"></div>
     </div>
 
-    <header id="main-header" class="fixed top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-black/30 backdrop-blur-md transition-opacity duration-500 opacity-0">
-        <div class="flex items-center gap-4">
-            <img src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-12 h-12">
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-20 p-2 sm:p-4 flex justify-between items-center bg-black/30 backdrop-blur-md transition-opacity duration-500 opacity-0">
+        <!-- Left side: Logo and Title -->
+        <div class="flex items-center gap-2 sm:gap-4">
+            <img src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-10 h-10 sm:w-12 sm:h-12">
             <div class="hidden sm:block">
-                <h1 class="text-xl font-bold">BPC // Agent Terminal</h1>
+                <h1 class="text-lg sm:text-xl font-bold">BPC // Agent Terminal</h1>
                 <div id="time-date" class="text-xs text-gray-400"></div>
             </div>
         </div>
-        <div class="flex items-center gap-6">
+        <!-- Right side: Music and Settings -->
+        <div class="flex items-center gap-2 sm:gap-6">
              <div id="music-player" class="flex items-center gap-2">
-                <button id="skip-song-button" class="text-yellow-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                <button id="skip-song-button" class="text-yellow-400 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                 </button>
-                <button id="mute-button" class="text-yellow-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                <button id="mute-button" class="text-yellow-400 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
                 </button>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3" class="w-24 volume-slider">
-                <div class="text-xs w-48 text-right">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.3" class="hidden md:block w-24 volume-slider">
+                <div class="hidden lg:block text-xs w-48 text-right">
                     <p class="truncate gold-gradient-text" id="song-info">Click anywhere to start music</p>
                 </div>
             </div>
             <div id="settings-container" class="relative hidden">
-                <button id="settings-button" class="btn text-sm px-4 py-2 rounded font-bold">Settings</button>
+                <button id="settings-button" class="btn text-xs sm:text-sm px-3 py-2 sm:px-4 rounded font-bold">Settings</button>
                 <div id="settings-menu" class="absolute right-0 mt-2 w-48 bg-black/80 backdrop-blur-lg border border-gray-700 rounded-md shadow-lg hidden z-50">
                     <button id="skip-button-main" class="w-full text-left px-4 py-2 text-sm text-yellow-300 hover:bg-yellow-500/10">Final Format</button>
                     <button id="reset-button" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">Reset Data</button>
@@ -152,25 +162,25 @@
     <main>
         <!-- Intro Screen -->
         <div id="intro-screen" class="screen active">
-             <div class="text-center flex flex-col items-center gap-6">
+             <div class="text-center flex flex-col items-center justify-center gap-6 p-4">
                 <div id="intro-sequence-container" class="intro-element">
-                    <img id="intro-logo" src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-48 h-48 md:w-64 md:h-64 object-contain mb-4 mx-auto">
-                    <h1 id="intro-title" class="text-4xl md:text-6xl bpc-title mt-4"></h1>
+                    <img id="intro-logo" src="https://github.com/Bapoooossssaaaa/scpstuff/blob/main/Adobe%20Express%20-%20file%20(4).png?raw=true" alt="Logo" class="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-contain mb-4 mx-auto">
+                    <h1 id="intro-title" class="text-2xl sm:text-4xl md:text-6xl bpc-title mt-4"></h1>
                 </div>
-                <div id="intro-buttons" class="intro-element mt-8">
-                    <button id="intro-button" class="btn p-3 px-6 rounded font-bold">Begin Configuration</button>
-                    <button id="skip-button" class="btn p-3 px-6 rounded font-bold hidden ml-4">Load Last Session</button>
+                <div id="intro-buttons" class="intro-element mt-8 flex flex-col sm:flex-row gap-4">
+                    <button id="intro-button" class="btn rounded font-bold">Begin Configuration</button>
+                    <button id="skip-button" class="btn rounded font-bold hidden">Load Last Session</button>
                 </div>
             </div>
         </div>
 
         <!-- Screens for configuration -->
         <div id="user-details-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">1 :: OPERATOR DETAILS</h2>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">1 :: OPERATOR DETAILS</h2>
                 <div class="space-y-6">
-                    <input type="text" id="username" class="w-full p-3 rounded" placeholder="Roblox Username...">
-                    <select id="rank" class="w-full p-3 rounded">
+                    <input type="text" id="username" class="w-full p-3 rounded text-base" placeholder="Roblox Username...">
+                    <select id="rank" class="w-full p-3 rounded text-base">
                         <option value="T-LR">Trial Low Rank (T-LR)</option>
                         <option value="Main Force">Main Force</option>
                         <option value="MR">Medium Rank (MR)</option>
@@ -178,69 +188,67 @@
                         <option value="VIP">Custom Morph</option>
                     </select>
                 </div>
-                <div class="mt-8 flex justify-end"><button id="next-to-role" class="btn p-3 px-6 rounded font-bold">Next &gt;</button></div>
+                <div class="mt-8 flex justify-end"><button id="next-to-role" class="btn rounded font-bold">Next &gt;</button></div>
             </div>
         </div>
         
         <div id="role-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">2 :: ROLE SELECTION</h2>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">2 :: ROLE SELECTION</h2>
                 <div id="role-options" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
                 <div class="mt-8 flex justify-between">
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="user-details-screen">&lt; Back</button>
-                    <button id="next-to-morph" class="nav-btn btn p-3 px-6 rounded font-bold" data-target="morph-screen">Next &gt;</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="user-details-screen">&lt; Back</button>
+                    <button id="next-to-morph" class="nav-btn btn rounded font-bold" data-target="morph-screen">Next &gt;</button>
                 </div>
             </div>
         </div>
 
         <div id="morph-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">3 :: MORPH SELECTION</h2>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">3 :: MORPH SELECTION</h2>
                 <div id="morph-options" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 <div id="extra-morph-options" class="mt-6 space-y-4"></div>
                 <div class="mt-8 flex justify-between">
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="role-screen">&lt; Back</button>
-                    <button id="next-from-morph" class="btn p-3 px-6 rounded font-bold">Next &gt;</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="role-screen">&lt; Back</button>
+                    <button id="next-from-morph" class="btn rounded font-bold">Next &gt;</button>
                 </div>
             </div>
         </div>
 
         <div id="barber-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                 <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">4 :: APPEARANCE</h2>
-                 <div class="grid md:grid-cols-3 gap-8">
-                    <div id="gender-selection" class="md:col-span-1 flex flex-col gap-4"></div>
-                    <div id="hair-selection" class="md:col-span-2 space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
-                 </div>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                 <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">4 :: APPEARANCE</h2>
+                 <div id="gender-selection" class="flex justify-center gap-4 mb-8"></div>
+                 <div id="hair-selection" class="space-y-4 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2"></div>
                  <div class="mt-8 flex justify-between">
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="morph-screen">&lt; Back</button>
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="armory-screen">Next &gt;</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="morph-screen">&lt; Back</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="armory-screen">Next &gt;</button>
                 </div>
             </div>
         </div>
 
         <div id="armory-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">5 :: ARMORY & GEAR</h2>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div id="armory-content" class="md:col-span-2 space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">5 :: ARMORY & GEAR</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div id="armory-content" class="md:col-span-2 space-y-6 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2">
                         <div id="armor-options" class="space-y-4"></div>
                         <div id="armory-categories" class="space-y-6"></div>
                     </div>
-                    <div id="stats-panel" class="md:col-span-1 bg-black/20 p-4 rounded-lg h-full">
+                    <div id="stats-panel" class="md:col-span-1 bg-black/20 p-4 rounded-lg h-full mt-6 md:mt-0">
                         <!-- Stats will be injected here -->
                     </div>
                 </div>
                 <div class="mt-8 flex justify-between">
-                    <button id="armory-back-button" class="btn p-3 px-6 rounded font-bold">&lt; Back</button>
-                    <button id="next-to-deployment" class="btn p-3 px-6 rounded font-bold">Next &gt;</button>
+                    <button id="armory-back-button" class="btn rounded font-bold">&lt; Back</button>
+                    <button id="next-to-deployment" class="btn rounded font-bold">Next &gt;</button>
                 </div>
             </div>
         </div>
 
         <div id="deployment-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">6 :: DEPLOYMENT SITE</h2>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">6 :: DEPLOYMENT SITE</h2>
                 <div id="site-options" class="space-y-4">
                     <label class="flex items-center p-4 rounded-lg border-2 border-transparent has-[:checked]:selected bg-black/20 cursor-pointer">
                         <input type="radio" name="site" value="Site 45" class="w-5 h-5 mr-4 accent-yellow-400" checked>
@@ -252,21 +260,21 @@
                     </label>
                 </div>
                 <div class="mt-8 flex justify-between">
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="armory-screen">&lt; Back</button>
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="output-screen">Generate Format &gt;</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="armory-screen">&lt; Back</button>
+                    <button class="nav-btn btn rounded font-bold" data-target="output-screen">Generate Format &gt;</button>
                 </div>
             </div>
         </div>
 
         <div id="output-screen" class="screen">
-            <div class="card rounded-lg p-6 md:p-8">
-                <h2 id="output-title" class="text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">7 :: GENERATED FORMAT</h2>
-                <div id="notepad-output" class="w-full h-80 p-4 rounded font-mono text-sm overflow-y-auto"></div>
-                <div class="mt-8 flex justify-between items-center">
-                    <button class="nav-btn btn p-3 px-6 rounded font-bold" data-target="deployment-screen">&lt; Back</button>
+            <div class="card rounded-lg p-4 sm:p-6 md:p-8">
+                <h2 id="output-title" class="text-xl sm:text-2xl md:text-3xl mb-6 border-b-2 border-gray-600 pb-3 bpc-title">7 :: GENERATED FORMAT</h2>
+                <div id="notepad-output" class="w-full h-64 sm:h-80 p-4 rounded font-mono text-sm overflow-y-auto"></div>
+                <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <button class="nav-btn btn rounded font-bold" data-target="deployment-screen">&lt; Back</button>
                     <div class="flex items-center gap-4">
-                        <button id="copy-button" class="btn p-3 px-6 rounded font-bold">Copy</button>
-                        <button id="finish-button" class="btn p-3 px-6 rounded font-bold">Finish & Exit</button>
+                        <button id="copy-button" class="btn rounded font-bold">Copy</button>
+                        <button id="finish-button" class="btn rounded font-bold">Finish & Exit</button>
                     </div>
                     <span id="copy-feedback" class="ml-4 text-green-400 opacity-0 transition-opacity">Copied!</span>
                 </div>
@@ -275,7 +283,7 @@
     </main>
 
     <!-- Modal Container -->
-    <div id="modal-container" class="fixed inset-0 z-50 items-center justify-center hidden modal-bg">
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-bg p-4">
         <!-- Rank Code Modal -->
         <div id="rankCodeModal" class="card rounded-lg p-8 w-11/12 max-w-md mx-auto hidden">
             <h3 class="text-xl font-bold mb-4 bpc-title">AUTHORIZATION REQUIRED</h3>
@@ -294,8 +302,8 @@
     </div>
     
     <!-- Outro Screen -->
-    <div id="outro-screen" class="fixed inset-0 z-50 items-center justify-center hidden modal-bg">
-         <h2 class="text-4xl text-white font-bold">Have a nice day.</h2>
+    <div id="outro-screen" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-bg">
+         <h2 class="text-2xl sm:text-4xl text-white font-bold text-center p-4">Have a nice day.</h2>
     </div>
 
     <audio id="audio-player" loop></audio>
@@ -322,6 +330,10 @@
             { name: "Twilight Echoes", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Twilight%20Echoes.mp3" },
             { name: "Neon Reverie", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Neon%20Reverie.mp3" },
             { name: "Pulse Drift", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Pulse%20Drift.mp3" },
+            { name: "Unspoken Truths", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Untitled%20(3).mp3" },
+            { name: "Rememberance", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Untitled%20(4).mp3" },
+            { name: "Stasis", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Untitled%20(5).mp3" },
+            { name: "Unseen Paranormalities", src: "https://github.com/Bapoooossssaaaa/scpstuff/raw/refs/heads/main/Untitled%20(2).mp3" },
         ];
         const barberData = {
             male: {
@@ -377,6 +389,7 @@
             music: { player: document.getElementById('audio-player'), mute: document.getElementById('mute-button'), volume: document.getElementById('volume-slider'), info: document.getElementById('song-info'), skip: document.getElementById('skip-song-button') },
             genderSelection: document.getElementById('gender-selection'),
             hairSelection: document.getElementById('hair-selection'),
+            barberScreen: document.getElementById('barber-screen'),
             armoryBackButton: document.getElementById('armory-back-button'),
         };
 
@@ -456,6 +469,89 @@
                 dom.morphOptions.appendChild(card);
             });
             renderExtraMorphOptions();
+        }
+
+        function renderBarber() {
+            dom.genderSelection.innerHTML = '';
+
+            const isUnmarkedTactical = state.role === 'Recon' && state.selectedMorph === 'Unmarked Tactical';
+
+            if (isUnmarkedTactical) {
+                // For this specific morph, force male and hide gender selection
+                state.gender = 'male';
+                dom.genderSelection.classList.add('hidden');
+            } else {
+                // For all other morphs, show the image buttons
+                dom.genderSelection.classList.remove('hidden');
+                const genders = {
+                    male: { name: 'Male', src: 'https://github.com/Bapoooossssaaaa/scpstuff/blob/main/MALEGENDERICON.png?raw=true' },
+                    female: { name: 'Female', src: 'https://github.com/Bapoooossssaaaa/scpstuff/blob/main/GIRLGENDER.png?raw=true' }
+                };
+
+                for (const [genderKey, genderData] of Object.entries(genders)) {
+                    const wrapper = document.createElement('div');
+                    wrapper.dataset.gender = genderKey; // The click handler uses this
+                    wrapper.className = `p-1 border-2 rounded-lg cursor-pointer transition-all duration-300 w-16 ${state.gender === genderKey ? 'selected' : 'border-transparent'}`;    
+                    const img = document.createElement('img');
+                    img.src = genderData.src;
+                    img.alt = genderData.name;
+                    img.className = 'w-full rounded-md';
+
+                    wrapper.appendChild(img);
+                    dom.genderSelection.appendChild(wrapper);
+                }
+            }
+
+            // This part renders the hair/beard options based on the selected gender
+            dom.hairSelection.innerHTML = '';
+            if (!barberData[state.gender]) return; // Safety check
+            const categories = barberData[state.gender];
+            for (const [categoryName, items] of Object.entries(categories)) {
+                let categoryHtml = `<h3 class="text-xl font-bold text-yellow-300">${categoryName}</h3><div class="grid grid-cols-2 sm:grid-cols-3 gap-4">`;
+                const isBeardCategory = categoryName === 'Beards';
+
+                for (const [itemName, itemData] of Object.entries(items)) {
+                    const isSelected = isBeardCategory ? state.beard === itemData.id : state.hair === itemData.id;
+                    categoryHtml += `
+                        <div class="barber-item border-2 bg-black/30 p-2 rounded-lg cursor-pointer transition-all duration-300 ${isSelected ? 'selected' : 'border-transparent'}" data-item-id="${itemData.id}" data-item-category="${categoryName}">
+                            <img src="${itemData.img}" alt="${itemName}" class="w-full h-20 object-contain mx-auto rounded-md">
+                            <p class="text-center text-xs mt-2">${itemName}</p>
+                        </div>
+                    `;
+                }
+                categoryHtml += `</div>`;
+                dom.hairSelection.innerHTML += categoryHtml;
+            }
+        }
+
+        function handleBarberClick(e) {
+            const genderBtn = e.target.closest('[data-gender]');
+            const itemEl = e.target.closest('.barber-item');
+
+            if (genderBtn) {
+                state.gender = genderBtn.dataset.gender;
+                // Reset hair/beard when gender changes to avoid invalid combinations
+                state.hair = null;
+                state.beard = null;
+                renderBarber();
+                saveData();
+                return;
+            }
+
+            if (itemEl) {
+                const itemId = itemEl.dataset.itemId;
+                const categoryName = itemEl.dataset.itemCategory;
+                const isBeard = categoryName === 'Beards';
+
+                // Toggle selection
+                if (isBeard) {
+                    state.beard = state.beard === itemId ? null : itemId;
+                } else {
+                    state.hair = state.hair === itemId ? null : itemId;
+                }
+                renderBarber();
+                saveData();
+            }
         }
 
         function renderExtraMorphOptions() {
@@ -575,7 +671,7 @@
         }
 
         function generateOutput() {
-            dom.outputTitle.textContent = `6 :: GENERATED FORMAT`;
+            dom.outputTitle.textContent = `7 :: GENERATED FORMAT`; // <-- CHANGE THIS
             const user = state.username || '{username}';
             const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
             if (!selectedMorphData) {
@@ -583,6 +679,9 @@
                 return;
             };
             let hatString = selectedMorphData.hats;
+            if (state.hair) hatString += `,${state.hair}`; // <-- ADD THIS LINE
+            if (state.beard) hatString += `,${state.beard}`; // <-- ADD THIS LINE
+
             if (selectedMorphData.options) {
                 Object.entries(selectedMorphData.options).forEach(([key, option]) => {
                     const value = state.morphOptions[key] || option.default || "";
@@ -594,7 +693,10 @@
             if (affiliation && !selectedMorphData.noPatch) hatString += `,${affiliation.id}`;
             hatString = hatString.replace(/,+/g, ',').replace(/^,|,$/g, '');
             const medkitCmd = "Medkit 5 Black";
-            const gearItems = [state.primaryWeapon, state.secondaryWeapon, ...state.misc.filter(i => i !== medkitCmd)].filter(Boolean);
+            const gearItems = [state.primaryWeapon, state.secondaryWeapon, ...state.misc.filter(i => i !== medkitCmd)]
+                .filter(Boolean)
+                .map(item => item === 'auth_tool' ? 'auth' : item);;
+            
             let gearString = "EMF";
             if (gearItems.length > 0) gearString += `,${gearItems.join(',')}`;
             
@@ -806,8 +908,9 @@
             const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
             const customHatOption = selectedMorphData?.options?.customHats;
             const customHatValue = state.morphOptions.customHats || "";
+            const isUnmarkedTactical = state.role === 'Recon' && state.selectedMorph === 'Unmarked Tactical';
 
-            if (customHatOption && customHatValue.trim() === '') {
+            if ((customHatOption && customHatValue.trim() === '') || isUnmarkedTactical) {
                 showScreen('barber-screen');
             } else {
                 showScreen('armory-screen');
@@ -817,8 +920,9 @@
             const selectedMorphData = morphs[state.role]?.[state.selectedMorph];
             const customHatOption = selectedMorphData?.options?.customHats;
             const customHatValue = state.morphOptions.customHats || "";
+            const isUnmarkedTactical = state.role === 'Recon' && state.selectedMorph === 'Unmarked Tactical';
 
-            if (customHatOption && customHatValue.trim() === '') {
+            if ((customHatOption && customHatValue.trim() === '') || isUnmarkedTactical) {
                 showScreen('barber-screen');
             } else {
                 showScreen('morph-screen');
@@ -836,6 +940,7 @@
         dom.submitRankCode.addEventListener('click', handleRankCodeSubmit);
         dom.cancelRankCode.addEventListener('click', () => { dom.rank.value = previousRank; dom.modalContainer.style.display = 'none'; });
         dom.errorOkButton.addEventListener('click', () => dom.modalContainer.style.display = 'none');
+        dom.barberScreen.addEventListener('click', handleBarberClick);
         
         dom.armoryContent.addEventListener('mouseover', (e) => { 
             const itemEl = e.target.closest('.armory-item');
